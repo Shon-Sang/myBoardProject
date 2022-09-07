@@ -12,6 +12,7 @@ public class User {
 	private String email;
 	private String address;
 	private Date joinDate;
+	private String refreshToken;
 	
 	public User() {
 	}
@@ -80,4 +81,11 @@ public class User {
 		this.joinDate = joinDate;
 	}
 	
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 }
