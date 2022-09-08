@@ -24,6 +24,7 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
+	// 여기서 AuthenticationManager을 Bean 등록해야 다른 Component(Bean)에서 사용할 수 있음
 	@Bean
     public AuthenticationManager authenticationManager(
         AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -34,7 +35,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 		
 		// 필터 등록
-		httpSecurity.apply(new MyCustomConfigurer()); // 수업시간에 배운대로 커스텀필터 등록
+//		httpSecurity.apply(new MyCustomConfigurer()); // 수업시간에 배운대로 커스텀필터 등록
 		// 이 방법 예상과 다르게 안됨
 //		AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 //		httpSecurity.addFilter(new JwtAuthenticationFilter(authManager));
@@ -48,6 +49,7 @@ public class SecurityConfig {
 		// 세큐리티 인증이 필요한 주소, 필요없는 주소 설정
 		httpSecurity.authorizeHttpRequests()
 					.antMatchers("/all/**").permitAll()
+					.antMatchers("/myAuth/**").permitAll()
 					.anyRequest().authenticated();
 		
 		return httpSecurity.build();
