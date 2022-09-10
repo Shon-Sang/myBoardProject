@@ -22,12 +22,12 @@ public class JwtProvider {
 	
 	// 로그인할 때 사용: 인증성공 후 jwt 생성
 	// Access, Refresh
-	public String createJwt(Authentication auth, String key) {
+	public String createJwt(Authentication auth, String key, int keyTime) {
 		CustomUserDetails userDetails = (CustomUserDetails)auth.getPrincipal();
 		
 		String jwt = JWT.create()
 								.withSubject(userDetails.getUsername())
-								.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*3*1L))) // 3분
+								.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*keyTime*1L))) // 3분
 								.withClaim("username", userDetails.getUser().getUsername())
 								.withClaim("authRole", userDetails.getUser().getAuthRole())
 								.sign(Algorithm.HMAC512(key));

@@ -12,12 +12,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.myapp.boardsite.repository.UserRepository;
+
 @EnableGlobalMethodSecurity(securedEnabled=true) // 컨트롤러 메소드에 권한 설정가능
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 	
 //	private org.springframework.context.annotation.AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(LoginUrlChange.class);
+	
+	// autoWired가 안되서 이런식으로함(이 방법으로 하니까 됨..)
+	private final UserRepository userRepository;
+	
+	public SecurityConfig(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 	
 	@Bean
 	public BCryptPasswordEncoder encoderPassword() {
@@ -58,12 +67,23 @@ public class SecurityConfig {
 	// 직접 만든 필터 추가
 	// https://www.baeldung.com/spring-security-custom-configurer
 	public class MyCustomConfigurer extends AbstractHttpConfigurer<MyCustomConfigurer, HttpSecurity>{
+		
+		// 이렇게 하니 역시나 JwtAuthenticationFilter에서 AuthenticationManager객체가 null이라고뜸
+//		@Autowired
+//		AuthenticationManager authManager;
+		
+		// 이거 쓸려면 위에서 new할때 넣어야하는데 Bean을 여기서 생성하기때문에 안됨.
+//		private final AuthenticationManager authManager;
+//		
+//		public MyCustomConfigurer(AuthenticationManager authenticationManager) {
+//			this.authManager = authenticationManager;
+//		}
+		
 		@Override
 		public void configure(HttpSecurity httpSecurity) throws Exception {
 			// AuthenticationManager를 만들어서 넣어줘야함
 			AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
-			httpSecurity.addFilter(new JwtAuthenticationFilter(authManager))
-						.addFilterAfter(new RefreshUpdateFilter(), JwtAuthenticationFilter.class);
+			httpSecurity.addFilter(new JwtAuthenticationFilter(authManager, userRepository));
 //			.addFilter(ac.getBean("getJwtAuthenticationFilter", JwtAuthenticationFilter.class));
 		}
 	}
