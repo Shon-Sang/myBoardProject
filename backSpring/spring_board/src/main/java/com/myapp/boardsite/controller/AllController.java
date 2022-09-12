@@ -27,9 +27,8 @@ public class AllController {
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@GetMapping("/prac01")
-	public User myprac01(User input) {
-		System.out.println("일단 동작은 합니다.");
-		return input;
+	public String myprac01() {
+		return "토큰없이 잘 동작합니다.";
 	}
 	
 	@GetMapping("/serachUser/{username}")

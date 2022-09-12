@@ -2,6 +2,8 @@ package com.myapp.boardsite.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,8 +28,8 @@ public class LoginController {
 	}
 	
 	@PostMapping("/refresh")
-	public Map<String, String> refresh(@RequestBody Map<String, String> map){
+	public Map<String, String> refresh(@RequestBody Map<String, String> map, HttpServletResponse response){
 		//System.out.println("user : " + user.getUsername());
-		return service.refresh(map);
+		return service.refresh(map, response);
 	} 
 }

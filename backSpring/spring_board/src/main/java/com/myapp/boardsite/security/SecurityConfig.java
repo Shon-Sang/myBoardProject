@@ -50,7 +50,7 @@ public class SecurityConfig {
 		
 		// 필터 등록
 		//httpSecurity.apply(new MyCustomConfigurer(jwtProvider)); // 수업시간에 배운대로 커스텀필터 등록
-		
+		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider));
 		// 이 방법 예상과 다르게 안됨
 //		AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 //		httpSecurity.addFilter(new JwtAuthenticationFilter(authManager));
@@ -66,10 +66,11 @@ public class SecurityConfig {
 					.antMatchers("/all/**").permitAll()
 					.antMatchers("/myAuth/**").permitAll()
 					.anyRequest().authenticated();
-		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider));
+		
 		return httpSecurity.build();
 	}
 	
+	// 현재 프로젝트에서 쓰지 않음
 	// 직접 만든 필터 추가
 	// https://www.baeldung.com/spring-security-custom-configurer
 	public class MyCustomConfigurer extends AbstractHttpConfigurer<MyCustomConfigurer, HttpSecurity>{

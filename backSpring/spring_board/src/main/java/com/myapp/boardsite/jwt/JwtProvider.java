@@ -15,6 +15,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.myapp.boardsite.dto.User;
 import com.myapp.boardsite.security.CustomUserDetails;
 
 @Component
@@ -40,6 +41,15 @@ public class JwtProvider {
 		return jwt;
 	}
 	
+	public String createJwt(User user, String key, int keyTime) {
+		String jwt = JWT.create()
+				.withSubject(user.getUsername())
+				.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*keyTime*1L))) // 3분
+				.withClaim("username", user.getUsername())
+				.withClaim("authRole", user.getAuthRole())
+				.sign(Algorithm.HMAC512(key));
+		return jwt;
+	}
 	
 	//--------------------
 	//이 밑의 메소드들은 토큰을 가지고 로그인이 필요한 url에 요청할 때 쓰는 메소드들임 (인가) 
@@ -49,10 +59,10 @@ public class JwtProvider {
 		
 		String jwtHeader = request.getHeader("Authorization");
 		// 이거 먼저 확인을 해야함
-		if(jwtHeader == null) {
+		if(jwtHeader == null) { // jwt가 필요한 요청이 아닐 수 있기때문
 			return null;
 		}
-		else if(jwtHeader.startsWith("Bearer ")) {
+		else if(jwtHeader.startsWith("Bearer ")) { 
 			return jwtHeader.replace("Bearer ", "");
 		}
 		
