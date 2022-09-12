@@ -1,5 +1,6 @@
 package com.myapp.boardsite.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.myapp.boardsite.dto.User;
 import com.myapp.boardsite.jwt.JwtProvider;
 import com.myapp.boardsite.repository.UserRepository;
@@ -38,8 +42,8 @@ public class LoginServiceImp implements LoginService{
 		Authentication auth = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 		System.out.println("제발 성공해주세요.. auth : "+auth);
 		
-		String accessToken = jwtProvider.createJwt(auth, "access", 3);
-		String refreshToken = jwtProvider.createJwt(auth, "refresh", 30);
+		String accessToken = jwtProvider.createJwt(auth, "access", 10);
+		String refreshToken = jwtProvider.createJwt(auth, "refresh", 60);
 		
 		Map<String, String> updateMap = new HashMap<String, String>();
 		updateMap.put("refreshToken", refreshToken);
@@ -50,5 +54,31 @@ public class LoginServiceImp implements LoginService{
 		map.put("accessToken", accessToken);
 		map.put("refreshToken", refreshToken);
 		return map;
+	}
+	
+	@Override
+	public Map<String, String> refresh(Map<String, String> map) {
+		
+		String refreshToken = map.get("refreshToken");
+		try {
+			String username = JWT.require(Algorithm.HMAC512("refresh")).build().verify(refreshToken).getClaim("username").asString();
+			User user = userRepository.selectUser(username);
+			String accessToken = JWT.create()
+					.withSubject(user.getUsername())
+					.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*10*1L))) // 10분
+					.withClaim("username", user.getUsername())
+					.withClaim("authRole", user.getAuthRole())
+					.sign(Algorithm.HMAC512("access"));
+			Map<String, String> tokenMap = new HashMap<String, String>();
+			tokenMap.put("accessToken", accessToken);
+			return tokenMap;
+		}catch(TokenExpiredException e) {
+			System.out.println("refresh토큰이 만료됨");
+			System.out.println("다시 로그인 하세요");
+			return null;
+		}catch(Exception e) {
+			System.out.println("refresh토큰이 잘못됨");
+			return null;
+		}
 	}
 }

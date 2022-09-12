@@ -12,6 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.myapp.boardsite.jwt.JwtFilter;
+import com.myapp.boardsite.jwt.JwtProvider;
+import com.myapp.boardsite.jwt.JwtSecurityConfigure;
 import com.myapp.boardsite.repository.UserRepository;
 
 @EnableGlobalMethodSecurity(securedEnabled=true) // 컨트롤러 메소드에 권한 설정가능
@@ -23,9 +26,11 @@ public class SecurityConfig {
 	
 	// autoWired가 안되서 이런식으로함(이 방법으로 하니까 됨..)
 	private final UserRepository userRepository;
+	private final JwtProvider jwtProvider;
 	
-	public SecurityConfig(UserRepository userRepository) {
+	public SecurityConfig(UserRepository userRepository, JwtProvider jwtProvider) {
 		this.userRepository = userRepository;
+		this.jwtProvider = jwtProvider;
 	}
 	
 	@Bean
@@ -44,7 +49,8 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 		
 		// 필터 등록
-//		httpSecurity.apply(new MyCustomConfigurer()); // 수업시간에 배운대로 커스텀필터 등록
+		//httpSecurity.apply(new MyCustomConfigurer(jwtProvider)); // 수업시간에 배운대로 커스텀필터 등록
+		
 		// 이 방법 예상과 다르게 안됨
 //		AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 //		httpSecurity.addFilter(new JwtAuthenticationFilter(authManager));
@@ -60,7 +66,7 @@ public class SecurityConfig {
 					.antMatchers("/all/**").permitAll()
 					.antMatchers("/myAuth/**").permitAll()
 					.anyRequest().authenticated();
-		
+		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider));
 		return httpSecurity.build();
 	}
 	
@@ -79,11 +85,20 @@ public class SecurityConfig {
 //			this.authManager = authenticationManager;
 //		}
 		
+		private JwtProvider jwtProvider;
+		
+		public MyCustomConfigurer(JwtProvider jwtProvider) {
+			this.jwtProvider = jwtProvider;
+		}
+		
 		@Override
 		public void configure(HttpSecurity httpSecurity) throws Exception {
+			
+			httpSecurity.addFilter(new JwtFilter(jwtProvider));
 			// AuthenticationManager를 만들어서 넣어줘야함
-			AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
-			httpSecurity.addFilter(new JwtAuthenticationFilter(authManager, userRepository));
+//			AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
+//			httpSecurity.addFilter(new JwtAuthenticationFilter(authManager, userRepository));
+			
 //			.addFilter(ac.getBean("getJwtAuthenticationFilter", JwtAuthenticationFilter.class));
 		}
 	}

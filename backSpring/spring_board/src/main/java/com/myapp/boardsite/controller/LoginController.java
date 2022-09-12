@@ -24,4 +24,10 @@ public class LoginController {
 		System.out.println("user : " + user.getUsername());
 		return service.SignIn(user);
 	}
+	
+	@PostMapping("/refresh")
+	public Map<String, String> refresh(@RequestBody Map<String, String> map){
+		//System.out.println("user : " + user.getUsername());
+		return service.refresh(map);
+	} 
 }
