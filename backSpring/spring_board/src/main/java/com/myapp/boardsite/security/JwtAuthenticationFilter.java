@@ -29,12 +29,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	// 인증을 하기위해 필요한 객체임
 	private AuthenticationManager authManager;
 	
-	@Autowired
 	private UserRepository userRepository;
 	
-	public JwtAuthenticationFilter(AuthenticationManager authManager) {
+	public JwtAuthenticationFilter(AuthenticationManager authManager, UserRepository repository) {
 		this.authManager = authManager;
+		this.userRepository = repository;
 	}
+	
+	// 역시 안됨 바로 AuthenticationManager 객체 없다고뜸
+//	@Autowired
+//	private AuthenticationManager authManager;
+//	
+//	@Autowired
+//	private UserRepository userRepository;
 	
 	// 로그인 할때 인증하는 부분
 	@Override
@@ -78,51 +85,53 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	
 	// 성공적으로 위의 attemptAuthentication 메소드가 실행되서 authentication가 리턴 되면 실행되는 메소드
 	// 여기서 JWT(access, refesh)를 만들고 response로 보내주면 됨
-//	@Override
-//	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-//			Authentication authResult) throws IOException, ServletException {
-//		/*
-//		 * 1. CustomUserDetail 생성(Authentication을 한번 저 클래스로 풀기어서 JWT만들기 위해)
-//		 * 2. JWT 생성(access, refresh)
-//		 * 3. response의 Header에 생성한 토큰을 추가(refresh 토큰은 db에 저장)
-//		 * 4. response의 body에 유저데이터 추가(Map을 쓰던가 dto를 쓸것)
-//		 */
-//		 
-//		// 1.
-//		CustomUserDetails userDetails = (CustomUserDetails)authResult.getPrincipal();
+	@Override
+	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+			Authentication authResult) throws IOException, ServletException {
+		/*
+		 * 1. CustomUserDetail 생성(Authentication을 한번 저 클래스로 풀기어서 JWT만들기 위해)
+		 * 2. JWT 생성(access, refresh)
+		 * 3. response의 Header에 생성한 토큰을 추가(refresh 토큰은 db에 저장)
+		 * 4. response의 body에 유저데이터 추가(Map을 쓰던가 dto를 쓸것)
+		 */
+		 
+		// 1.
+		CustomUserDetails userDetails = (CustomUserDetails)authResult.getPrincipal();
+		
+		// 2.
+		String accessToken = JWT.create()
+								.withSubject(userDetails.getUsername())
+								.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*3*1L))) // 3분
+								.withClaim("username", userDetails.getUser().getUsername())
+								.withClaim("authRole", userDetails.getUser().getAuthRole())
+								.sign(Algorithm.HMAC512("myAcessKey"));
+		
+		String refreshToken = JWT.create()
+				.withSubject(userDetails.getUsername())
+				.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*10*1L))) // 6분
+				.withClaim("username", userDetails.getUser().getUsername())
+				.withClaim("authRole", userDetails.getUser().getAuthRole())
+				.sign(Algorithm.HMAC512("myRefreshKey"));
+		// 3.
+		response.addHeader("AccessToken", "Bearer " + accessToken);
+		response.addHeader("RefreshToken", "Bearer " + refreshToken);
+		//refreshKey db 추가
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("refreshToken", refreshToken);
+		map.put("username", userDetails.getUsername());
+		System.out.println("여기까지는 왔음");
 //		
-//		// 2.
-//		String accessToken = JWT.create()
-//								.withSubject(userDetails.getUsername())
-//								.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*3*1L))) // 3분
-//								.withClaim("username", userDetails.getUser().getUsername())
-//								.withClaim("authRole", userDetails.getUser().getAuthRole())
-//								.sign(Algorithm.HMAC512("myAcessKey"));
-//		
-//		String refreshToken = JWT.create()
-//				.withSubject(userDetails.getUsername())
-//				.withExpiresAt(new Date(System.currentTimeMillis() + (60*1000*10*1L))) // 6분
-//				.withClaim("username", userDetails.getUser().getUsername())
-//				.withClaim("authRole", userDetails.getUser().getAuthRole())
-//				.sign(Algorithm.HMAC512("myRefreshKey"));
-//		// 3.
-//		response.addHeader("AccessToken", "Bearer " + accessToken);
-//		response.addHeader("RefreshToken", "Bearer " + refreshToken);
-//		//refreshKey db 추가
-////		Map<String, String> map = new HashMap<String, String>();
-////		map.put("refreshToken", refreshToken);
-////		map.put("username", userDetails.getUsername());
-////		System.out.println("여기까지는 왔음");
-////		
-////		// 그냥 내가 직접 bean하나 만들어야할거같음 이방법도 안됨(내가못하는건지.., filter라서 기본적으로 Bean사용이 안된다고함)
-//		// Intercepter로 DB에 저장할것
-////		// AutoWired는 filter에서는 주입을 못시켜줌
-////		userRepository.updateUserRefreshToken(map);
-//		
-//		// 4. dto 사용
-//		ObjectMapper obm = new ObjectMapper();
-//		obm.writeValue(response.getOutputStream(), userDetails.getUser());
-//		System.out.println("여기까지 오면 다된거임");
-//		
-//	}
+//		// 그냥 내가 직접 bean하나 만들어야할거같음 이방법도 안됨(내가못하는건지.., filter라서 기본적으로 Bean사용이 안된다고함)
+		// Intercepter로 DB에 저장할것 => 안됨 아예 인터셉터가 안걸림, 직접 만든 컨트롤러 메소드만 되는거같음..
+//		// AutoWired는 filter에서는 주입을 못시켜줌
+		// 결과적으로 성공함(SecurityConfig에 멤버변수로 레포지토리생성해서 생성자로 초기화하는 식으로)
+		// 근데 url은 여전히 /login 말고 바꾸는법을 모르겠음
+		userRepository.updateUserRefreshToken(map);
+		
+		// 4. dto 사용
+		ObjectMapper obm = new ObjectMapper();
+		obm.writeValue(response.getOutputStream(), userDetails.getUser());
+		System.out.println("여기까지 오면 다된거임");
+		
+	}
 }
