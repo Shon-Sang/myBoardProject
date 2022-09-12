@@ -16,6 +16,7 @@ import com.myapp.boardsite.jwt.JwtProvider;
 public class LoginServiceImp implements LoginService{
 	
 	// 이거 중요함(신경 써서 생각할 것, SecurityConfig에 Bean으로 어떻게 등록하는지 이해할 것)
+	// 이게 있어야 인증을 할 수 있음
 	@Autowired
 	AuthenticationManager authenticationManager;
 	
