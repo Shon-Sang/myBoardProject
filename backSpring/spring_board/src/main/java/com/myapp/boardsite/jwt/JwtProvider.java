@@ -41,6 +41,7 @@ public class JwtProvider {
 		return jwt;
 	}
 	
+	// LoginServiceImp에서 refresh토큰을 디코딩해서 얻은 username을 db에서 검색해서 얻은 User 객체를 사용해서 access 토큰을 만들기 위해 만듬
 	public String createJwt(User user, String key, int keyTime) {
 		String jwt = JWT.create()
 				.withSubject(user.getUsername())

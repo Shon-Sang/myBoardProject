@@ -40,7 +40,7 @@ public class LoginServiceImp implements LoginService{
 		// 입력받은 아이디 비번 으로 인증을 확인할 토큰 생성
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = 
 				new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
-		// 실제 인증이 이루어져서 성공하면 토큰 생성
+		// 실제 인증이 이루어져서 성공하면 토큰 생성, authenticationManager.authenticate 이게 중요함
 		Authentication auth = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 		
 		String accessToken = jwtProvider.createJwt(auth, "access", 10);
