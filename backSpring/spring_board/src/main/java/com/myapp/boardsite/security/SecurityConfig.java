@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.myapp.boardsite.jwt.JwtFilter;
 import com.myapp.boardsite.jwt.JwtProvider;
@@ -27,10 +30,12 @@ public class SecurityConfig {
 	// autoWired가 안되서 이런식으로함(이 방법으로 하니까 됨..)
 	private final UserRepository userRepository;
 	private final JwtProvider jwtProvider;
+	private final CorsConfig corsConfig;
 	
-	public SecurityConfig(UserRepository userRepository, JwtProvider jwtProvider) {
+	public SecurityConfig(UserRepository userRepository, JwtProvider jwtProvider, CorsConfig corsConfig) {
 		this.userRepository = userRepository;
 		this.jwtProvider = jwtProvider;
+		this.corsConfig = corsConfig;
 	}
 	
 	@Bean
@@ -45,12 +50,31 @@ public class SecurityConfig {
       return authenticationConfiguration.getAuthenticationManager();
     }
 	
+	// Cors설정, 될지 안될지 모름, jwt 필요한 요청은 안됨, 근데 jwt필요 없는 요청은 됨 
+	// CorsFilter 클래스만들어서 밑에 쓴거 그대로 붙여넣고 
+	// jwtFilter를 추가하는 Configure 클래스에 addFilter하니까 jwt필요한 요청도 됨(여기도 autoWired안되고 일일이 멤버변수, 생성자로 의존성 주입)
+//	@Bean
+//	public CorsFilter corsFilter() {
+//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		CorsConfiguration config = new CorsConfiguration();
+//		config.setAllowCredentials(true);
+//		config.addAllowedOriginPattern("*");
+//		config.addAllowedHeader("*");
+//		config.addAllowedMethod("*");
+//		
+//		config.addExposedHeader("Authorization");
+//		config.addExposedHeader("refreshToken");
+//		source.registerCorsConfiguration("/**", config);
+//		
+//		return new CorsFilter(source);
+//	}
+	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 		
 		// 필터 등록
 		//httpSecurity.apply(new MyCustomConfigurer(jwtProvider)); // 수업시간에 배운대로 커스텀필터 등록
-		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider));
+		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider, corsConfig));
 		// 이 방법 예상과 다르게 안됨
 //		AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 //		httpSecurity.addFilter(new JwtAuthenticationFilter(authManager));

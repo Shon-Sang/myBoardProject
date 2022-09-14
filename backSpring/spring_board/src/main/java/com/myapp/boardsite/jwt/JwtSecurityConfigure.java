@@ -5,16 +5,27 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.myapp.boardsite.security.CorsConfig;
+
 public class JwtSecurityConfigure extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>{
+	
+	private CorsConfig corsConfig;
+	
 	private JwtProvider jwtProvider;
 	
-	public JwtSecurityConfigure(JwtProvider jwtProvider) {
+	public JwtSecurityConfigure(JwtProvider jwtProvider, CorsConfig corsConfig) {
 		this.jwtProvider = jwtProvider;
+		this.corsConfig = corsConfig;
 	}
+	
+	// 이거 안됨 JwtFilter.doFilterInternal 에서 null jwtProvider가 null이라고 뜸..
+//	@Autowired
+//	JwtProvider jwtProvider;
 	
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
 		JwtFilter jwtFilter = new JwtFilter(jwtProvider);
-		httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+		httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+					.addFilter(corsConfig.corsFilter());
 	}
 }

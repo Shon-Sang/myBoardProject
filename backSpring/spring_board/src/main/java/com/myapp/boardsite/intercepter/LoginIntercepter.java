@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapp.boardsite.repository.UserRepository;
 import com.myapp.boardsite.security.CustomUserDetails;
 
+// 이걸 사용했던 이유의 시작은 로그인 url(/login)을 바꾸기 위해서였음
+// Filter에서 autoWired가 안써져서(refreshToken db에 저장하기위해) 여기서 써보려고 한거
 public class LoginIntercepter implements HandlerInterceptor{
 	
 	@Autowired

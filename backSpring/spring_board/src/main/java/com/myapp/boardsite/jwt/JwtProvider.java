@@ -72,7 +72,6 @@ public class JwtProvider {
 	
 	// 뽑아온 JWT가 유효한지 확인
 	public boolean validateToken(String jwt, String key) {
-		
 		try {
 			JWT.require(Algorithm.HMAC512(key)).build().verify(jwt);
 			return true;
