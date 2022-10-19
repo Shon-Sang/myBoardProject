@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 // 요청할 때 처음 한번만 실행되는 필터
+@Component
 public class JwtFilter extends OncePerRequestFilter{
 	
 	
@@ -24,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+		
 		String jwt = jwtProvider.getJWT(request);
 
 		try {

@@ -27,7 +27,7 @@ public class JwtProvider {
 	public JwtProvider() {
 	}
 	
-	// 로그인할 때 사용: 인증성공 후 jwt 생성
+	// 로그인할 때 사용: 인증성공 후 jwt 생성 (인증)
 	// Access, Refresh
 	public String createJwt(Authentication auth, String key, int keyTime) {
 		CustomUserDetails userDetails = (CustomUserDetails)auth.getPrincipal();

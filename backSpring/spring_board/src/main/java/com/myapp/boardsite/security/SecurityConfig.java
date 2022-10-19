@@ -26,15 +26,17 @@ import com.myapp.boardsite.repository.UserRepository;
 public class SecurityConfig {
 	
 //	private org.springframework.context.annotation.AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(LoginUrlChange.class);
-	
+	// 2022-10-19 // jwtFilter를 Bean으로 등록함
 	// autoWired가 안되서 이런식으로함(이 방법으로 하니까 됨..)
 	private final UserRepository userRepository;
-	private final JwtProvider jwtProvider;
+	//private final JwtProvider jwtProvider;
 	private final CorsConfig corsConfig;
+	private final JwtFilter jwtFilter;
 	
-	public SecurityConfig(UserRepository userRepository, JwtProvider jwtProvider, CorsConfig corsConfig) {
+	public SecurityConfig(UserRepository userRepository, JwtFilter jwtFilter, /*JwtProvider jwtProvider,*/ CorsConfig corsConfig) {
 		this.userRepository = userRepository;
-		this.jwtProvider = jwtProvider;
+		//this.jwtProvider = jwtProvider;
+		this.jwtFilter = jwtFilter;
 		this.corsConfig = corsConfig;
 	}
 	
@@ -74,7 +76,7 @@ public class SecurityConfig {
 		
 		// 필터 등록
 		//httpSecurity.apply(new MyCustomConfigurer(jwtProvider)); // 수업시간에 배운대로 커스텀필터 등록
-		httpSecurity.apply(new JwtSecurityConfigure(jwtProvider, corsConfig));
+		httpSecurity.apply(new JwtSecurityConfigure(/*jwtProvider*/jwtFilter, corsConfig));
 		// 이 방법 예상과 다르게 안됨
 //		AuthenticationManager authManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 //		httpSecurity.addFilter(new JwtAuthenticationFilter(authManager));

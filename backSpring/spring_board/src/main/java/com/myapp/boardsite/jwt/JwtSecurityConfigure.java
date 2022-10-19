@@ -11,10 +11,14 @@ public class JwtSecurityConfigure extends SecurityConfigurerAdapter<DefaultSecur
 	
 	private CorsConfig corsConfig;
 	
-	private JwtProvider jwtProvider;
+	//private JwtProvider jwtProvider;
 	
-	public JwtSecurityConfigure(JwtProvider jwtProvider, CorsConfig corsConfig) {
-		this.jwtProvider = jwtProvider;
+	private JwtFilter jwtFilter;
+	
+	//@Autowired
+	public JwtSecurityConfigure(JwtFilter jwtFilter,/*JwtProvider jwtProvider,*/ CorsConfig corsConfig) {
+		//this.jwtProvider = jwtProvider;
+		this.jwtFilter = jwtFilter;
 		this.corsConfig = corsConfig;
 	}
 	
@@ -24,7 +28,7 @@ public class JwtSecurityConfigure extends SecurityConfigurerAdapter<DefaultSecur
 	
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
-		JwtFilter jwtFilter = new JwtFilter(jwtProvider);
+		//JwtFilter jwtFilter = new JwtFilter(jwtProvider);
 		httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 					.addFilter(corsConfig.corsFilter());
 	}
