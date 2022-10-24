@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Box } from '@mui/system';
 import { Button } from '@mui/material';
+import { BASEURL } from '../../assets/AllUrl';
 
 const CorsConfirm = () => {
   const [boardData, setBoardData] = useState([
@@ -54,12 +55,32 @@ const CorsConfirm = () => {
     searchData01();
   };
 
+  const searchAllBoard = async () => {
+    const data = await axios.get(BASEURL + 'board/all');
+    console.log(data);
+    return data.data;
+  };
+
+  const btn4Handle = async () => {
+    const data = await searchAllBoard();
+    console.log(data);
+  }; // 중요 이런식으로 해야함
+
+  const searchAllBoard02 = async () => {
+    await axios.get(BASEURL + 'board/all').then((res) => {
+      console.log(res.data);
+    });
+  };
+
   return (
     <>
       <Box>{boardData[0].username || ''}</Box>
       <Button onClick={hanldeMethod01}>버튼1</Button>
       <button onClick={searchData02}>버튼2</button>
       <button onClick={searchData03}>버튼3</button>
+      <Button variant='outlined' onClick={btn4Handle}>
+        보드데이터 버튼
+      </Button>
     </>
   );
 };
