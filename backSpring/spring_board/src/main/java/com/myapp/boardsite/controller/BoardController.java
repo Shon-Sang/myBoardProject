@@ -33,6 +33,16 @@ public class BoardController {
 		return boardService.searchAllBoardData();
 	}
 	
+	@GetMapping("/all/search")
+	public List<Board> getSearchBoard(Board board) {
+		return boardService.serarchBoardData(board);
+	}
+	
+	@GetMapping("/all/{id}")
+	public Board getIdBoard(@PathVariable("id")int id) {
+		return boardService.serarchIdBoardData(id);
+	}
+	
 	@PostMapping("/add")
 	public ResponseEntity<Board> addBoard(@RequestBody Board board, Authentication auth){
 		System.out.println("title : " + board.getTitle());

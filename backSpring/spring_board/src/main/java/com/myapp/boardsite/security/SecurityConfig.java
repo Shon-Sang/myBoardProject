@@ -91,7 +91,7 @@ public class SecurityConfig {
 		httpSecurity.authorizeHttpRequests()
 					.antMatchers("/all/**").permitAll()
 					.antMatchers("/myAuth/**").permitAll()
-					.antMatchers("/board/all").permitAll()
+					.antMatchers("/board/all/**").permitAll()
 					.anyRequest().authenticated();
 		
 		return httpSecurity.build();

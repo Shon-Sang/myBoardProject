@@ -15,5 +15,6 @@ public interface BoardRepository { // 기본적으로 읽기는 모든 유저가
 	public int insertBoard(Board board);
 	public int updateBoard(Board board);
 	public int deleteBoard(int id);
+	public List<Board> selectBoard(Board board);
 	public Board selectIdBoard(int id);
 }

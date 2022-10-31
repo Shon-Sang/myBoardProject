@@ -1,9 +1,9 @@
 import { Box, Button, Typography, Link } from '@mui/material';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Header = () => {
-  const [login, setLogin] = useState(false);
-
+const Header = ({ login, setLogin }) => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -16,7 +16,7 @@ const Header = () => {
           <Button
             variant='contained'
             onClick={() => {
-              setLogin(true);
+              navigate('login');
             }}
           >
             로그인
@@ -33,9 +33,17 @@ const Header = () => {
           </Button>
         )}
       </Box>
-      <Link href='/main' underline='none'>
+      {/* <Link href='/main' underline='none'> */}
+      <Button
+        onClick={() => {
+          navigate('main');
+        }}
+        size='small'
+      >
         <Typography variant='h3'>게시판입니다</Typography>
-      </Link>
+      </Button>
+
+      {/* </Link> */}
     </Box>
   );
 };

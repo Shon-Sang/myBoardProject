@@ -9,5 +9,6 @@ public interface BoardService {
 	public int insertBoardData(Board board);
 	public int updateBoardData(Board board);
 	public int deleteBoardData(int id);
+	public List<Board> serarchBoardData(Board board);
 	public Board serarchIdBoardData(int id);
 }

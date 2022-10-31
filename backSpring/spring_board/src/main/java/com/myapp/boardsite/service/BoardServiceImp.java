@@ -38,6 +38,11 @@ public class BoardServiceImp implements BoardService{
 	}
 	
 	@Override
+	public List<Board> serarchBoardData(Board board) {
+		return boardRepository.selectBoard(board);
+	}
+	
+	@Override
 	public Board serarchIdBoardData(int id) {
 		return boardRepository.selectIdBoard(id);
 	}
